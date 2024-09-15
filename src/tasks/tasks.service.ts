@@ -53,4 +53,16 @@ export class TasksService {
       message: 'Task successfully deleted',
     };
   }
+
+  async updateTaskStatus(id: string, status: string): Promise<Task> {
+    if (!isUUID(id)) {
+      throw new BadRequestException(`Invalid ID format: "${id}"`);
+    }
+
+    const task = await this.getTaskById(id);
+    task.status = status as any;
+    await this.tasksRepository.save(task);
+
+    return task;
+  }
 }
