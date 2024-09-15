@@ -1,6 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { TaskModel, TaskStatus } from './task.model';
 import { v4 as uuidv4 } from 'uuid';
+import { CreateTaskDto } from './dto/create-task.dto';
+import { GetTasksFilterDto } from './dto/get-tasks-filter.dto';
 
 @Injectable()
 export class TasksService {
@@ -10,7 +12,20 @@ export class TasksService {
     return this.tasks;
   }
 
-  createTask(title: string, description: string): TaskModel {
+  // createTask(title: string, description: string): TaskModel {
+  //   const task: TaskModel = {
+  //     id: uuidv4(),
+  //     title,
+  //     description,
+  //     status: TaskStatus.OPEN,
+  //   };
+  //   this.tasks.push(task);
+  //   return task;
+  // }
+
+  createTask(createTaskDto: CreateTaskDto): TaskModel {
+    const { title, description } = createTaskDto;
+
     const task: TaskModel = {
       id: uuidv4(),
       title,
@@ -19,5 +34,59 @@ export class TasksService {
     };
     this.tasks.push(task);
     return task;
+  }
+
+  /**
+   * Retrieves a task by its ID.
+   * @param id
+   */
+  getTaskById(id: string): TaskModel {
+    return this.tasks.find((task) => task.id === id);
+  }
+
+  /**
+   * Deletes a task by its ID.
+   * @param id
+   */
+  // deleteTask(id: string): void {
+  //   this.tasks = this.tasks.filter((task) => task.id !== id);
+  // }
+  deleteTask(id: string): boolean {
+    const index = this.tasks.findIndex((task) => task.id === id);
+    if (index === -1) {
+      return false;
+    }
+    this.tasks.splice(index, 1);
+    return true;
+  }
+
+  updateTaskStatus(id: string, status: TaskStatus): TaskModel {
+    const task = this.getTaskById(id);
+    if (task) {
+      task.status = status;
+    }
+    return task;
+  }
+
+  getTasksWithFilters(filterDto: GetTasksFilterDto): TaskModel[] {
+    const { status, search } = filterDto;
+
+    // define a temporary arry to hold the result
+    let tasks = this.getAllTasks();
+
+    // do something with the status
+    if (status) {
+      tasks = tasks.filter((task) => task.status === status);
+    }
+
+    // do something with the search
+    if (search) {
+      tasks = tasks.filter((task) => {
+        return task.title.includes(search) || task.description.includes(search);
+      });
+    }
+
+    // return the result
+    return tasks;
   }
 }
