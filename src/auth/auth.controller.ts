@@ -7,7 +7,10 @@ export class AuthController {
   constructor(private authService: AuthService) {}
 
   @Post('/signup')
-  signUp(@Body() authCreadentialsDto: AuthCreadentialsDto) {
-    return this.authService.signUp(authCreadentialsDto);
+  async signUp(
+    @Body() authCreadentialsDto: AuthCreadentialsDto,
+  ): Promise<{ message: string }> {
+    await this.authService.signUp(authCreadentialsDto);
+    return { message: 'user created' };
   }
 }

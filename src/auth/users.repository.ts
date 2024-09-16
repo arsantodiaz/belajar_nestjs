@@ -1,10 +1,12 @@
-import { EntityRepository, Repository } from 'typeorm';
+import { DataSource, Repository } from 'typeorm';
 import { UserEntity } from './user.entity';
 import { AuthCreadentialsDto } from './dto/auth-creadentials.dto';
 
-@EntityRepository(UserEntity)
 export class UsersRepository extends Repository<UserEntity> {
-  // Create User
+  constructor(private dataSource: DataSource) {
+    super(UserEntity, dataSource.createEntityManager());
+  }
+
   async createUser(authCreadentialsDto: AuthCreadentialsDto): Promise<void> {
     const { username, password } = authCreadentialsDto;
 
