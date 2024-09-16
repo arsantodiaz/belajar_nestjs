@@ -9,6 +9,7 @@ import { Task } from './task.entity';
 import { TasksRepository } from './tasks.repository';
 import { CreateTaskDto } from './dto/create-task.dto';
 import { isUUID } from 'class-validator';
+import { GetTasksFilterDto } from './dto/get-tasks-filter.dto';
 
 @Injectable()
 export class TasksService {
@@ -64,5 +65,9 @@ export class TasksService {
     await this.tasksRepository.save(task);
 
     return task;
+  }
+
+  getTasks(filterDto: GetTasksFilterDto): Promise<Task[]> {
+    return this.tasksRepository.getTasks(filterDto);
   }
 }
