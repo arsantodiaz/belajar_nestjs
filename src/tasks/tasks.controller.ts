@@ -3,6 +3,7 @@ import {
   Controller,
   Delete,
   Get,
+  Logger,
   Param,
   Patch,
   Post,
@@ -16,11 +17,19 @@ import { GetTasksFilterDto } from './dto/get-tasks-filter.dto';
 import { AuthGuard } from '@nestjs/passport';
 import { UserEntity } from '../auth/user.entity';
 import { GetUser } from '../auth/get-user.decorator';
+import { ConfigService } from '@nestjs/config';
 
 @Controller('tasks')
 @UseGuards(AuthGuard())
 export class TasksController {
-  constructor(private tasksService: TasksService) {}
+  private logger = new Logger('TasksController');
+
+  constructor(
+    private tasksService: TasksService,
+    private configService: ConfigService,
+  ) {
+    console.log(`Config ${this.configService.get('TEST_VALUE')}`);
+  }
 
   /**
    * Retrieves a task by its ID.
@@ -32,6 +41,9 @@ export class TasksController {
     @Param('id') id: string,
     @GetUser() user: UserEntity,
   ): Promise<Task> {
+    this.logger.log(
+      `User "${user.username}" retrieving a task with ID "${id}"`,
+    );
     return this.tasksService.getTaskById(id, user);
   }
 
@@ -65,6 +77,9 @@ export class TasksController {
     @Query() filterDto: GetTasksFilterDto,
     @GetUser() user: UserEntity,
   ): Promise<Task[]> {
+    this.logger.verbose(
+      `User "${user.username}" retrieving a task with Filter "${JSON.stringify(filterDto)}"`,
+    );
     return this.tasksService.getTasks(filterDto, user);
   }
 }
